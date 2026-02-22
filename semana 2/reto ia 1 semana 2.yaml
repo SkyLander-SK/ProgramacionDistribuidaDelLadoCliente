@@ -1,0 +1,260 @@
+openapi: 3.0.3
+info:
+  title: EcoMarket API
+  version: 1.0.0
+  description: API REST para gestionar productos, productores y pedidos.
+
+servers:
+  - url: http://localhost:3000/api
+
+paths:
+
+  /productos:
+    get:
+      summary: Obtener todos los productos
+      parameters:
+        - name: nombre
+          in: query
+          schema:
+            type: string
+          description: Buscar productos por nombre
+      responses:
+        "200":
+          description: Lista de productos
+    post:
+      summary: Crear un producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductoInput"
+      responses:
+        "201":
+          description: Producto creado
+        "400":
+          description: Datos inválidos
+
+  /productos/{id}:
+    get:
+      summary: Obtener un producto
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Producto encontrado
+        "404":
+          description: Producto no encontrado
+    put:
+      summary: Actualizar producto completo
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductoInput"
+      responses:
+        "200":
+          description: Producto actualizado
+    delete:
+      summary: Eliminar producto
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "204":
+          description: Producto eliminado
+        "404":
+          description: No encontrado
+
+  /productos/{id}/precio:
+    patch:
+      summary: Actualizar solo el precio
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                precio:
+                  type: number
+      responses:
+        "200":
+          description: Precio actualizado
+        "422":
+          description: Precio inválido
+
+  /productores:
+    get:
+      summary: Listar productores
+      responses:
+        "200":
+          description: Lista de productores
+    post:
+      summary: Crear productor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductorInput"
+      responses:
+        "201":
+          description: Productor creado
+
+  /productores/{id}:
+    get:
+      summary: Obtener productor
+      parameters:
+        - $ref: "#/components/parameters/ProductorId"
+      responses:
+        "200":
+          description: Productor encontrado
+        "404":
+          description: No encontrado
+    put:
+      summary: Actualizar productor
+      parameters:
+        - $ref: "#/components/parameters/ProductorId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductorInput"
+      responses:
+        "200":
+          description: Productor actualizado
+    delete:
+      summary: Eliminar productor
+      parameters:
+        - $ref: "#/components/parameters/ProductorId"
+      responses:
+        "204":
+          description: Eliminado
+        "409":
+          description: Tiene productos asociados
+
+  /productores/{id}/productos:
+    get:
+      summary: Obtener productos de un productor
+      parameters:
+        - $ref: "#/components/parameters/ProductorId"
+      responses:
+        "200":
+          description: Lista de productos
+
+  /pedidos:
+    get:
+      summary: Listar pedidos
+      responses:
+        "200":
+          description: Lista de pedidos
+    post:
+      summary: Crear pedido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PedidoInput"
+      responses:
+        "201":
+          description: Pedido creado
+        "409":
+          description: Stock insuficiente
+
+  /pedidos/{id}:
+    get:
+      summary: Obtener pedido
+      parameters:
+        - $ref: "#/components/parameters/PedidoId"
+      responses:
+        "200":
+          description: Pedido encontrado
+        "404":
+          description: No encontrado
+    delete:
+      summary: Cancelar pedido
+      parameters:
+        - $ref: "#/components/parameters/PedidoId"
+      responses:
+        "204":
+          description: Pedido cancelado
+
+  /pedidos/{id}/estado:
+    patch:
+      summary: Actualizar estado del pedido
+      parameters:
+        - $ref: "#/components/parameters/PedidoId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+      responses:
+        "200":
+          description: Estado actualizado
+
+components:
+
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    ProductorId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    PedidoId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+
+    ProductoInput:
+      type: object
+      properties:
+        nombre:
+          type: string
+        precio:
+          type: number
+        productorId:
+          type: integer
+        stock:
+          type: integer
+
+    ProductorInput:
+      type: object
+      properties:
+        nombre:
+          type: string
+        ubicacion:
+          type: string
+
+    PedidoInput:
+      type: object
+      properties:
+        cliente:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productoId:
+                type: integer
+              cantidad:
+                type: integer
