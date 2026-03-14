@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Práctico 1 — Programación Distribuida del Lado del Cliente</title>
+<style>
+/* ══════════════════════════════════════════
+   VARIABLES Y RESET
+══════════════════════════════════════════ */
+:root {
+    --primary:      #003a63;
+    --secondary:    #005b96;
+    --accent:       #f2a900;
+    --danger:       #c0392b;
+    --success:      #1a6e3c;
+    --warn-bg:      #fff8e1;
+    --warn-border:  #f2a900;
+    --danger-bg:    #fdf0ef;
+    --danger-border:#c0392b;
+    --info-bg:      #e8f4fd;
+    --info-border:  #005b96;
+    --gray-100:     #f5f7fa;
+    --gray-200:     #e8ecf0;
+    --gray-300:     #cdd3da;
+    --gray-700:     #4a5568;
+    --gray-900:     #1a202c;
+    --font-mono:    'Courier New', Courier, monospace;
+    --radius:       6px;
+    --shadow-sm:    0 1px 4px rgba(0,0,0,0.10);
+    --shadow-md:    0 4px 16px rgba(0,58,99,0.14);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--gray-900);
+    background: var(--gray-100);
+}
+
+/* ══════════════════════════════════════════
+   HEADER INSTITUCIONAL
+══════════════════════════════════════════ */
+.exam-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 0;
+    box-shadow: var(--shadow-md);
+}
+.exam-header-top {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 3px solid var(--accent);
+}
+.exam-header-escudo {
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2rem;
+    min-width: 100px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+}
+.escudo-circle {
+    width: 64px; height: 64px;
+    background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1rem; color: var(--primary);
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: -1px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.exam-header-info {
+    flex: 1;
+    padding: 1.5rem 2rem;
+}
+.exam-header-info .universidad { font-size: 0.78rem; opacity: 0.85; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.25rem; }
+.exam-header-info .materia { font-size: 1.3rem; font-weight: bold; font-family: 'Arial', sans-serif; margin-bottom: 0.25rem; }
+.exam-header-info .programa { font-size: 0.88rem; opacity: 0.9; }
+.exam-header-badge {
+    background: var(--accent);
+    color: var(--primary);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    min-width: 140px;
+}
+.exam-header-badge .badge-label { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Arial', sans-serif; }
+.exam-header-badge .badge-num { font-size: 2.2rem; font-weight: 900; font-family: 'Arial Black', sans-serif; line-height: 1; }
+.exam-header-badge .badge-sub { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-top: 0.2rem; }
+
+.exam-meta-bar {
+    display: flex;
+    gap: 0;
+    font-size: 0.8rem;
+    font-family: 'Arial', sans-serif;
+}
+.meta-item {
+    flex: 1;
+    padding: 0.6rem 1.5rem;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.meta-item:last-child { border-right: none; }
+.meta-item .meta-icon { font-size: 1rem; opacity: 0.8; }
+.meta-item .meta-content { }
+.meta-item .meta-label { opacity: 0.7; font-size: 0.72rem; display: block; }
+.meta-item .meta-val { font-weight: bold; }
+
+/* ══════════════════════════════════════════
+   CONTENEDOR PRINCIPAL
+══════════════════════════════════════════ */
+.exam-body {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 4rem;
+}
+
+/* ══════════════════════════════════════════
+   FICHA DE ESTUDIANTE
+══════════════════════════════════════════ */
+.student-card {
+    background: white;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+.student-card h3 {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+.student-fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+}
+.student-field label {
+    display: block;
+    font-size: 0.73rem;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-700);
+    margin-bottom: 0.3rem;
+}
+.field-line {
+    border-bottom: 1.5px solid var(--gray-300);
+    height: 28px;
+    width: 100%;
+}
+
+/* ══════════════════════════════════════════
+   SECCIÓN GENÉRICA
+══════════════════════════════════════════ */
+.section {
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.section-header {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Arial', sans-serif;
+}
+.section-header .section-icon { font-size: 1.1rem; }
+.section-header h2 {
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex: 1;
+}
+.section-header .section-pts {
+    font-size: 0.8rem;
+    background: var(--accent);
+    color: var(--primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: bold;
+}
+.section-body { padding: 1.5rem; }
+
+/* ══════════════════════════════════════════
+   INSTRUCCIONES
+══════════════════════════════════════════ */
+.instrucciones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.instr-block {
+    background: var(--gray-100);
+    border-left: 4px solid var(--secondary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0.85rem 1rem;
+}
+.instr-block h4 {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+}
+.instr-block ul { margin-left: 1.2rem; }
+.instr-block li { font-size: 0.88rem; margin-bottom: 0.3rem; line-height: 1.5; }
+
+.alert-box {
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem;
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+}
+.alert-box.warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); }
+.alert-box.danger { background: var(--danger-bg); border-left: 4px solid var(--danger-border); }
+.alert-box.info { background: var(--info-bg); border-left: 4px solid var(--info-border); }
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.alert-content strong { font-family: 'Arial', sans-serif; font-size: 0.82rem; display: block; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ══════════════════════════════════════════
+   ESCENARIO
+══════════════════════════════════════════ */
+.escenario-text {
+    background: linear-gradient(135deg, #001f3f 0%, #003a63 100%);
+    color: white;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    border-left: 4px solid var(--accent);
+}
+.escenario-text .speaker { color: var(--accent); font-weight: bold; font-family: 'Arial', sans-serif; display: block; margin-bottom: 0.4rem; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ══════════════════════════════════════════
+   API SPECIFICATION
+══════════════════════════════════════════ */
+.api-endpoint {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.endpoint-header {
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.88rem;
+    font-weight: bold;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+}
+.method-badge {
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 0.02em;
+}
+.method-get  { background: #d4edda; color: #155724; }
+.method-post { background: #cce5ff; color: #004085; }
+.endpoint-path { font-family: var(--font-mono); color: var(--primary); }
+.endpoint-desc { color: var(--gray-700); font-weight: normal; margin-left: auto; font-size: 0.82rem; }
+.endpoint-body { padding: 1rem; }
+.endpoint-body table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+.endpoint-body th { background: var(--gray-100); padding: 0.4rem 0.75rem; text-align: left; font-family: 'Arial', sans-serif; font-size: 0.77rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-700); border-bottom: 1px solid var(--gray-200); }
+.endpoint-body td { padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+.endpoint-body td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--secondary); white-space: nowrap; }
+.endpoint-body td.required { color: var(--danger); font-weight: bold; }
+
+pre.json-example {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin-top: 0.75rem;
+}
+pre.json-example .key { color: #79c0ff; }
+pre.json-example .str { color: #a5d6ff; }
+pre.json-example .num { color: #f8b74a; }
+pre.json-example .null { color: #ff7b72; }
+
+.responses-list { margin-top: 0.75rem; }
+.response-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 0.85rem;
+}
+.response-row:last-child { border-bottom: none; }
+.status-pill {
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+.s2xx { background: #d4edda; color: #155724; }
+.s304 { background: #d1ecf1; color: #0c5460; }
+.s4xx { background: #fff3cd; color: #856404; }
+.s5xx { background: #f8d7da; color: #721c24; }
+.snet { background: #e2e3e5; color: #383d41; }
+
+/* ══════════════════════════════════════════
+   REQUERIMIENTOS — SKELETON
+══════════════════════════════════════════ */
+.req-list { counter-reset: req; }
+.req-item {
+    counter-increment: req;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+.req-item:last-child { border-bottom: none; }
+.req-num {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: var(--primary); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 900;
+    margin-top: 0.1rem;
+}
+.req-content { flex: 1; }
+.req-content .req-title { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 0.92rem; color: var(--primary); margin-bottom: 0.3rem; }
+.req-content .req-desc { font-size: 0.88rem; color: var(--gray-700); line-height: 1.6; }
+.req-content .req-desc code { font-family: var(--font-mono); background: var(--gray-100); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; }
+.req-pts {
+    flex-shrink: 0;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    padding: 0.25rem 0.6rem;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: var(--gray-700);
+    white-space: nowrap;
+    margin-top: 0.1rem;
+}
+
+pre.skeleton {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-top: 1rem;
+    border-left: 4px solid var(--accent);
+}
+pre.skeleton .comment { color: #8b949e; }
+pre.skeleton .kw { color: #ff7b72; }
+pre.skeleton .fn { color: #d2a8ff; }
+pre.skeleton .todo { color: var(--accent); font-weight: bold; }
+pre.skeleton .cls { color: #79c0ff; }
+pre.skeleton .str { color: #a5d6ff; }
+
+/* ══════════════════════════════════════════
+   INVARIANTES
+══════════════════════════════════════════ */
+.invariant-list { list-style: none; }
+.invariant-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px dotted var(--gray-200);
+    font-size: 0.88rem;
+}
+.invariant-item:last-child { border-bottom: none; }
+.inv-icon { color: var(--danger); font-weight: 900; flex-shrink: 0; width: 20px; text-align: center; margin-top: 0.15rem; }
+.invariant-item code { font-family: var(--font-mono); background: var(--gray-100); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; }
+
+/* ══════════════════════════════════════════
+   RÚBRICA
+══════════════════════════════════════════ */
+.rubrica-wrapper { overflow-x: auto; }
+table.rubrica {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+    min-width: 700px;
+}
+table.rubrica thead tr { background: var(--primary); color: white; }
+table.rubrica th {
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: bold;
+}
+table.rubrica td {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--gray-200);
+    vertical-align: top;
+    line-height: 1.5;
+}
+table.rubrica tr:nth-child(even) td { background: var(--gray-100); }
+table.rubrica .criterio-cell { font-weight: bold; font-family: 'Arial', sans-serif; font-size: 0.85rem; color: var(--primary); }
+table.rubrica .criterio-cell small { display: block; font-weight: normal; color: var(--gray-700); font-size: 0.78rem; margin-top: 0.2rem; font-family: Georgia, serif; }
+.nivel { display: inline-flex; align-items: center; gap: 0.35rem; }
+.nivel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-e { background: #1a6e3c; }
+.dot-s { background: #005b96; }
+.dot-b { background: #b8860b; }
+.dot-i { background: #c0392b; }
+
+/* Zero tolerance section */
+.zero-section {
+    background: linear-gradient(135deg, #1a0010 0%, #3b0020 100%);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 5px solid var(--danger);
+}
+.zero-section h3 {
+    color: #ff6b6b;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.zero-item {
+    color: #f0d0d0;
+    font-size: 0.87rem;
+    padding: 0.6rem 0.9rem;
+    border-left: 3px solid var(--danger);
+    background: rgba(220,53,69,0.12);
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 0.6rem;
+    line-height: 1.55;
+}
+.zero-item:last-child { margin-bottom: 0; }
+.zero-item strong { color: #ff6b6b; }
+.zero-item code { font-family: var(--font-mono); background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; }
+
+/* ══════════════════════════════════════════
+   PUNTAJE Y FIRMA
+══════════════════════════════════════════ */
+.scoring-bar {
+    background: white;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+}
+.scoring-header {
+    background: var(--primary);
+    color: white;
+    padding: 0.6rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: bold;
+}
+.scoring-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) auto;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.8rem;
+}
+.score-cell {
+    padding: 0.75rem;
+    border-right: 1px solid var(--gray-200);
+    text-align: center;
+}
+.score-cell:last-child { border-right: none; background: var(--warn-bg); }
+.score-cell .score-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-700); margin-bottom: 0.4rem; }
+.score-cell .score-pct { font-size: 0.82rem; color: var(--secondary); font-weight: bold; margin-bottom: 0.4rem; }
+.score-cell .score-box {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 4px;
+    height: 32px;
+    width: 100%;
+}
+.score-cell.total-cell .score-label { color: var(--primary); font-weight: bold; }
+.score-cell.total-cell .score-box { border-color: var(--accent); border-width: 2px; }
+
+.firma-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--gray-200);
+}
+.firma-field { text-align: center; }
+.firma-line { border-bottom: 1.5px solid var(--gray-400); height: 32px; margin-bottom: 0.3rem; }
+.firma-label { font-family: 'Arial', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-700); }
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+.exam-footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.75rem;
+    color: var(--gray-700);
+    border-top: 2px solid var(--gray-200);
+    margin-top: 2rem;
+}
+.exam-footer strong { color: var(--primary); }
+.page-num {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    margin-top: 0.5rem;
+}
+
+/* ══════════════════════════════════════════
+   PRINT STYLES
+══════════════════════════════════════════ */
+@media print {
+    body { background: white; font-size: 12pt; }
+    .exam-body { max-width: 100%; margin: 0; padding: 0 1cm 0; }
+    .section { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .exam-header { break-after: avoid; }
+    .no-print { display: none; }
+    pre.skeleton, pre.json-example { font-size: 9pt; }
+    table.rubrica { font-size: 9pt; }
+    .zero-section { background: #1a0010 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+@media (max-width: 768px) {
+    .exam-header-top { flex-wrap: wrap; }
+    .exam-header-escudo { display: none; }
+    .instrucciones-grid { grid-template-columns: 1fr; }
+    .student-fields { grid-template-columns: 1fr; }
+    .scoring-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER INSTITUCIONAL
+══════════════════════════════════════════ -->
+<header class="exam-header">
+    <div class="exam-header-top">
+        <div class="exam-header-escudo">
+            <div class="escudo-circle">UAN</div>
+        </div>
+        <div class="exam-header-info">
+            <span class="universidad">Universidad Autónoma de Nayarit · Unidad Académica de Ciencias Básicas e Ingeniería</span>
+            <div class="materia">Programación Distribuida del Lado del Cliente</div>
+            <div class="programa">Licenciatura en Sistemas Computacionales · Semana 5</div>
+        </div>
+        <div class="exam-header-badge">
+            <span class="badge-label">Examen</span>
+            <span class="badge-num">E1</span>
+            <span class="badge-sub">Práctico</span>
+        </div>
+    </div>
+    <div class="exam-meta-bar">
+        <div class="meta-item">
+            <span class="meta-icon">🕐</span>
+            <div class="meta-content">
+                <span class="meta-label">Duración</span>
+                <span class="meta-val">90 minutos</span>
+            </div>
+        </div>
+        <div class="meta-item">
+            <span class="meta-icon">📊</span>
+            <div class="meta-content">
+                <span class="meta-label">Valor</span>
+                <span class="meta-val">12% calificación final</span>
+            </div>
+        </div>
+        <div class="meta-item">
+            <span class="meta-icon">💻</span>
+            <div class="meta-content">
+                <span class="meta-label">Modalidad</span>
+                <span class="meta-val">Individual · Máquina propia</span>
+            </div>
+        </div>
+        <div class="meta-item">
+            <span class="meta-icon">📁</span>
+            <div class="meta-content">
+                <span class="meta-label">Entrega</span>
+                <span class="meta-val">Archivo .py / .js en plataforma</span>
+            </div>
+        </div>
+        <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <div class="meta-content">
+                <span class="meta-label">Semestre</span>
+                <span class="meta-val">2025-A</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     CUERPO DEL EXAMEN
+══════════════════════════════════════════ -->
+<main class="exam-body">
+
+    <!-- FICHA ESTUDIANTE -->
+    <div class="student-card">
+        <h3>🎓 Datos del Estudiante</h3>
+        <div class="student-fields">
+            <div class="student-field">
+                <label>Nombre completo</label>
+                <div class="field-line">José Luis Yahir Rojas Hernández</div>
+            </div>
+            <div class="student-field">
+                <label>Número de matrícula</label>
+                <div class="field-line">23209946</div>
+            </div>
+            <div class="student-field">
+                <label>Lenguaje / plataforma elegida</label>
+                <div class="field-line">Python</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ INSTRUCCIONES GENERALES ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">📋</span>
+            <h2>Instrucciones Generales</h2>
+        </div>
+        <div class="section-body">
+            <div class="instrucciones-grid">
+                <div class="instr-block">
+                    <h4>Lo que SÍ está permitido</h4>
+                    <ul>
+                        <li>Documentación oficial de tu lenguaje (Python docs, MDN, etc.)</li>
+                        <li>Tu propio código del simulacro de Semana 5</li>
+                        <li>Notas personales en papel o archivo local</li>
+                        <li>El esqueleto que está en este documento como punto de partida</li>
+                        <li>Elegir cualquier lenguaje que soporte HTTP async</li>
+                    </ul>
+                </div>
+                <div class="instr-block">
+                    <h4>Lo que NO está permitido</h4>
+                    <ul>
+                        <li>Comunicación con otros estudiantes (chat, correo, mensajes)</li>
+                        <li>IA generativa durante el examen (Claude, ChatGPT, Copilot, etc.)</li>
+                        <li>Copiar código de fuentes externas sin adaptación propia</li>
+                        <li>Acceder al código de compañeros, repositorios compartidos o foros</li>
+                        <li>Entregar código que no compila o no ejecuta en tu máquina</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="alert-box warn">
+                <span class="alert-icon">⏱️</span>
+                <div class="alert-content">
+                    <strong>Gestión del tiempo recomendada</strong>
+                    Lectura del escenario + planificación: <strong>10 min</strong> · Implementación de los 3 métodos principales: <strong>55 min</strong> · Manejo de errores y prueba manual: <strong>20 min</strong> · Entrega y revisión final: <strong>5 min</strong>. Si a los 70 minutos no has empezado a probar, detente y entrega lo que tienes — un cliente parcialmente funcional califica mejor que uno sin entregar.
+                </div>
+            </div>
+            <div class="alert-box info">
+                <span class="alert-icon">💡</span>
+                <div class="alert-content">
+                    <strong>Lo que se evalúa</strong>
+                    El examen evalúa <em>decisiones de diseño</em>, no perfección sintáctica. Un cliente que falla de forma controlada (captura el error, registra el warning, continúa el ciclo) obtiene más puntos que un cliente que funciona al 90% pero crashea silenciosamente ante un timeout.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ESCENARIO ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">🏢</span>
+            <h2>Escenario — Contexto del Problema</h2>
+        </div>
+        <div class="section-body">
+            <div class="escenario-text">
+                <span class="speaker">📢 Sofía Ramírez — Tech Lead, TechNova S.A. de C.V.</span>
+                "El equipo de proveedores de EcoMarket necesita urgente un <strong>monitor de disponibilidad de inventario</strong>. Tenemos una API que publica en tiempo casi-real el stock de cada producto en los almacenes. El problema: en este momento nadie sabe cuándo un producto cae por debajo del mínimo — nos enteramos tarde, los proveedores se quejan y perdemos ventas. Necesito que construyas el cliente que le da vida a este sistema: que consulte la API periódicamente, detecte cuándo hay cambios, y notifique al módulo de compras y al módulo de alertas de forma desacoplada. El servidor ya está listo — tu trabajo es construir el cliente que lo consume correctamente."
+            </div>
+            <p style="font-size:0.9rem; color: var(--gray-700); line-height: 1.65;">
+                Tu tarea es implementar un <strong>cliente distribuido del lado del cliente</strong> para EcoMarket que monitoree la disponibilidad del inventario. El cliente debe consumir la API del servidor de inventario, usar programación asíncrona, implementar polling adaptativo con detección de cambios, y notificar a los módulos interesados mediante el patrón Observer — sin que ningún módulo dependa directamente de los detalles HTTP.
+            </p>
+        </div>
+    </div>
+
+    <!-- ══ ESPECIFICACIÓN DE LA API ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">🔌</span>
+            <h2>Especificación de la API — Servidor EcoMarket</h2>
+        </div>
+        <div class="section-body">
+            <p style="font-size:0.88rem; color: var(--gray-700); margin-bottom: 1rem;"><strong>URL Base:</strong> <code style="font-family: var(--font-mono); background: var(--gray-100); padding: 0.15rem 0.5rem; border-radius: 3px;">http://ecomarket.local/api/v1</code> &nbsp;·&nbsp; <strong>Autenticación:</strong> header <code style="font-family: var(--font-mono); background: var(--gray-100); padding: 0.15rem 0.5rem; border-radius: 3px;">Authorization: Bearer &lt;TOKEN&gt;</code></p>
+
+            <!-- Endpoint 1 -->
+            <div class="api-endpoint">
+                <div class="endpoint-header">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/inventario</span>
+                    <span class="endpoint-desc">Consulta el estado actual del inventario de productos</span>
+                </div>
+                <div class="endpoint-body">
+                    <p style="font-size:0.85rem; margin-bottom:0.75rem;"><strong>Headers requeridos:</strong></p>
+                    <table>
+                        <thead><tr><th>Header</th><th>Valor</th><th>Requerido</th></tr></thead>
+                        <tbody>
+                            <tr><td>Authorization</td><td>Bearer {TOKEN} — token de 32 caracteres alfanuméricos</td><td class="required">✓ Sí</td></tr>
+                            <tr><td>If-None-Match</td><td>ETag del inventario de la última respuesta (para detección de cambios)</td><td>Opcional</td></tr>
+                            <tr><td>Accept</td><td>application/json</td><td>Opcional</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size:0.85rem; margin: 0.75rem 0 0.4rem;"><strong>Respuesta 200 OK — ejemplo:</strong></p>
+<pre class="json-example"><span class="key">"Content-Type"</span>: <span class="str">"application/json"</span>
+<span class="key">"ETag"</span>: <span class="str">"\"inv-a3f8b2\""</span>
+
+{
+  <span class="key">"productos"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"PROD-001"</span>, <span class="key">"nombre"</span>: <span class="str">"Arroz Premium 5kg"</span>,
+      <span class="key">"stock"</span>: <span class="num">45</span>, <span class="key">"stock_minimo"</span>: <span class="num">50</span>, <span class="key">"status"</span>: <span class="str">"BAJO_MINIMO"</span>,
+      <span class="key">"almacen"</span>: <span class="str">"ALM-01"</span>, <span class="key">"ultima_entrada"</span>: <span class="str">"2025-03-15T08:45:00Z"</span>
+    },
+    {
+      <span class="key">"id"</span>: <span class="str">"PROD-002"</span>, <span class="key">"nombre"</span>: <span class="str">"Aceite Vegetal 1L"</span>,
+      <span class="key">"stock"</span>: <span class="num">120</span>, <span class="key">"stock_minimo"</span>: <span class="num">30</span>, <span class="key">"status"</span>: <span class="str">"NORMAL"</span>,
+      <span class="key">"almacen"</span>: <span class="str">"ALM-01"</span>, <span class="key">"ultima_entrada"</span>: <span class="str">"2025-03-14T18:00:00Z"</span>
+    }
+  ],
+  <span class="key">"total_registros"</span>: <span class="num">2</span>,
+  <span class="key">"ultima_actualizacion"</span>: <span class="str">"2025-03-15T09:00:00Z"</span>,
+  <span class="key">"next_page_token"</span>: <span class="null">null</span>
+}</pre>
+                    <p style="font-size:0.83rem; color: var(--gray-700); margin-top: 0.5rem;">⚠️ <em>Nota:</em> El campo <code style="font-family: var(--font-mono);">next_page_token</code> puede aparecer en futuras versiones. Tu cliente debe ignorar graciosamente los campos que no reconoce sin lanzar excepciones.</p>
+
+                    <p style="font-size:0.85rem; margin: 0.75rem 0 0.4rem;"><strong>Códigos de respuesta posibles:</strong></p>
+                    <div class="responses-list">
+                        <div class="response-row"><span class="status-pill s2xx">200 OK</span><span>Inventario actualizado. El cuerpo contiene el JSON completo. El ETag en el header identifica esta versión.</span></div>
+                        <div class="response-row"><span class="status-pill s304">304 Not Modified</span><span>El inventario no cambió desde el último ETag enviado. <strong>No hay body.</strong> El cliente debe mantener el estado anterior.</span></div>
+                        <div class="response-row"><span class="status-pill s4xx">400 Bad Request</span><span>Header <code style="font-family: var(--font-mono);">Authorization</code> mal formado. <strong>No reintentar</strong> — hay un error en la petición.</span></div>
+                        <div class="response-row"><span class="status-pill s4xx">401 Unauthorized</span><span>Token inválido o expirado. <strong>No reintentar</strong> — requiere acción del usuario.</span></div>
+                        <div class="response-row"><span class="status-pill s5xx">503 Service Unavailable</span><span>El servidor está temporalmente sobrecargado. <strong>Aplicar backoff</strong> — reintentar después.</span></div>
+                        <div class="response-row"><span class="status-pill snet">Timeout / ConexiónError</span><span>Error de red antes de recibir respuesta. <strong>El ciclo de polling debe continuar</strong> — registrar warning y esperar el próximo ciclo.</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Endpoint 2 -->
+            <div class="api-endpoint">
+                <div class="endpoint-header">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/alertas</span>
+                    <span class="endpoint-desc">Registra una alerta de stock bajo en el sistema central</span>
+                </div>
+                <div class="endpoint-body">
+                    <p style="font-size:0.85rem; margin-bottom:0.75rem;"><strong>Body requerido (JSON):</strong></p>
+                    <table>
+                        <thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+                        <tbody>
+                            <tr><td>producto_id</td><td>string</td><td>ID del producto con stock bajo (ej: "PROD-001")</td></tr>
+                            <tr><td>stock_actual</td><td>number</td><td>Cantidad en inventario al momento de la alerta</td></tr>
+                            <tr><td>stock_minimo</td><td>number</td><td>Umbral mínimo configurado para el producto</td></tr>
+                            <tr><td>timestamp</td><td>string ISO 8601</td><td>Momento en que el cliente detectó el umbral</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size:0.85rem; margin: 0.75rem 0 0.3rem;"><strong>Respuesta:</strong> <code style="font-family: var(--font-mono);">201 Created</code> — alerta registrada. <code style="font-family: var(--font-mono);">422 Unprocessable Entity</code> — campos faltantes o tipos incorrectos (no reintentar).</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══ REQUERIMIENTOS ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">⚙️</span>
+            <h2>Requerimientos de Implementación</h2>
+        </div>
+        <div class="section-body">
+            <div class="req-list">
+                <div class="req-item">
+                    <div class="req-num">1</div>
+                    <div class="req-content">
+                        <div class="req-title">Implementar <code>MonitorInventario</code> como Observable</div>
+                        <div class="req-desc">Crea la clase <code>MonitorInventario</code> que extiende (o implementa) el patrón Observable. Debe mantener la lista de observadores registrados y el método <code>_notificar(inventario)</code> que llama a <code>actualizar(inventario)</code> en cada observador registrado de forma idéntica. Agrega dos observadores concretos: <code>ModuloCompras</code> que muestra en consola los productos con status <code>"BAJO_MINIMO"</code>, y <code>ModuloAlertas</code> que, cuando detecta productos por debajo del mínimo, hace un <code>POST /alertas</code> para cada uno.</div>
+                    </div>
+                    <div class="req-pts">Observer 15%</div>
+                </div>
+                <div class="req-item">
+                    <div class="req-num">2</div>
+                    <div class="req-content">
+                        <div class="req-title">Implementar <code>_consultar_inventario()</code> como función async</div>
+                        <div class="req-desc">Función asíncrona que hace <code>GET /inventario</code> con los headers requeridos (Authorization + If-None-Match si ya hay un ETag guardado). Debe manejar cada código de respuesta de forma diferenciada: <code>200</code> actualiza el estado y el ETag; <code>304</code> no modifica nada; <code>4xx</code> registra el error y <strong>no reintenta</strong>; <code>5xx</code> incrementa el intervalo (backoff). Errores de red (Timeout, ConnectionError) deben capturarse: el ciclo de polling <strong>no debe detenerse</strong> por un fallo puntual de red.</div>
+                    </div>
+                    <div class="req-pts">HTTP 25% · Errores 25%</div>
+                </div>
+                <div class="req-item">
+                    <div class="req-num">3</div>
+                    <div class="req-content">
+                        <div class="req-title">Implementar el ciclo de polling async con backoff adaptativo</div>
+                        <div class="req-desc">Función asíncrona <code>iniciar()</code> con un ciclo <code>while ejecutando</code> que: (a) llama a <code>_consultar_inventario()</code>, (b) si hay datos nuevos (200 OK), compara con el estado anterior y llama a <code>_notificar()</code> si hubo cambios, (c) ajusta el intervalo — backoff si no hay cambios o hay 5xx; reset a base si hay cambios. El sleep debe ser <strong>no bloqueante</strong> (<code>await asyncio.sleep()</code> o equivalente). Implementa <code>detener()</code> que solo cambia una bandera para un cierre suave.</div>
+                    </div>
+                    <div class="req-pts">Async 20% · Polling 15%</div>
+                </div>
+            </div>
+
+            <!-- Skeleton -->
+            <div class="alert-box info" style="margin-top:1.25rem;">
+                <span class="alert-icon">🦴</span>
+                <div class="alert-content">
+                    <strong>Esqueleto de referencia (Python)</strong>
+                    El siguiente pseudocódigo muestra la estructura esperada. No estás obligado a usarlo — puedes escribir el tuyo desde cero. Si usas otro lenguaje, la estructura lógica debe ser equivalente.
+                </div>
+            </div>
+
+<pre class="skeleton"><span class="comment"># ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────</span>
+BASE_URL        = <span class="str">"http://ecomarket.local/api/v1"</span>
+TOKEN           = <span class="str">"eyJ0eXAiO..."</span>          <span class="comment"># token proporcionado en el examen</span>
+INTERVALO_BASE  = <span class="num">5</span>                       <span class="comment"># segundos entre consultas</span>
+INTERVALO_MAX   = <span class="num">60</span>                      <span class="comment"># máximo de backoff</span>
+TIMEOUT         = <span class="num">10</span>                      <span class="comment"># segundos de timeout por petición</span>
+
+<span class="comment"># ─── INTERFAZ OBSERVADOR ──────────────────────────────────────────────────────</span>
+<span class="kw">clase abstracta</span> <span class="cls">Observador</span>:
+    <span class="kw">método abstracto</span> <span class="fn">actualizar</span>(inventario): <span class="comment"># inventario: dict con el JSON</span>
+        <span class="todo">TODO: implementar en cada subclase</span>
+
+<span class="comment"># ─── OBSERVABLE ───────────────────────────────────────────────────────────────</span>
+<span class="kw">clase</span> <span class="cls">MonitorInventario</span>:
+    <span class="kw">constructor</span>():
+        _observadores = []
+        _ultimo_etag  = Ninguno
+        _ultimo_estado= Ninguno
+        _ejecutando   = Falso
+        _intervalo    = INTERVALO_BASE
+
+    <span class="fn">suscribir</span>(obs: Observador):  <span class="todo">TODO</span>
+    <span class="fn">desuscribir</span>(obs: Observador):<span class="todo">TODO</span>
+    <span class="fn">_notificar</span>(inventario):     <span class="todo">TODO: llamar actualizar(inventario) en cada observador</span>
+
+    <span class="kw">método async</span> <span class="fn">_consultar_inventario</span>():
+        <span class="comment"># Construir headers con Authorization e If-None-Match</span>
+        <span class="todo">TODO: construir headers</span>
+        <span class="comment"># Hacer GET /inventario con timeout — await</span>
+        <span class="todo">TODO: petición async</span>
+        <span class="comment"># Manejar cada código de respuesta de forma diferenciada</span>
+        <span class="todo">TODO: 200 → actualizar _ultimo_etag + _ultimo_estado + retornar datos</span>
+        <span class="todo">TODO: 304 → retornar Ninguno (sin cambios)</span>
+        <span class="todo">TODO: 4xx → registrar error, NO reintentar (retornar Ninguno)</span>
+        <span class="todo">TODO: 5xx → incrementar _intervalo (backoff), retornar Ninguno</span>
+        <span class="todo">TODO: Timeout / ConexiónError → registrar warning, NO detener el ciclo</span>
+
+    <span class="kw">método async</span> <span class="fn">iniciar</span>():
+        _ejecutando = Verdadero
+        <span class="kw">mientras</span> _ejecutando:
+            <span class="todo">TODO: llamar _consultar_inventario() — await</span>
+            <span class="todo">TODO: si hay datos nuevos y son diferentes al _ultimo_estado → _notificar()</span>
+            <span class="todo">TODO: ajustar _intervalo (backoff si 304 acumulados, reset si 200 con cambios)</span>
+            <span class="todo">TODO: await sleep no bloqueante</span>
+
+    <span class="fn">detener</span>():
+        <span class="todo">TODO: solo cambiar _ejecutando a Falso</span>
+
+<span class="comment"># ─── OBSERVADORES CONCRETOS ───────────────────────────────────────────────────</span>
+<span class="kw">clase</span> <span class="cls">ModuloCompras</span>(<span class="kw">extiende</span> Observador):
+    <span class="kw">método</span> <span class="fn">actualizar</span>(inventario):
+        <span class="todo">TODO: mostrar en consola los productos con status "BAJO_MINIMO"</span>
+
+<span class="kw">clase</span> <span class="cls">ModuloAlertas</span>(<span class="kw">extiende</span> Observador):
+    <span class="kw">método async</span> <span class="fn">actualizar</span>(inventario):
+        <span class="todo">TODO: para cada producto BAJO_MINIMO → POST /alertas con los 4 campos requeridos</span>
+        <span class="todo">TODO: manejar 201 (éxito) y 422 (no reintentar) de forma diferenciada</span>
+
+<span class="comment"># ─── PUNTO DE ENTRADA ─────────────────────────────────────────────────────────</span>
+monitor = MonitorInventario()
+monitor.suscribir(ModuloCompras())
+monitor.suscribir(ModuloAlertas())
+<span class="comment"># await monitor.iniciar()  ← invocar dentro de un event loop</span></pre>
+
+        </div>
+    </div>
+
+    <!-- ══ INVARIANTES ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">🔒</span>
+            <h2>Invariantes — Condiciones que deben cumplirse siempre</h2>
+        </div>
+        <div class="section-body">
+            <p style="font-size:0.88rem; color: var(--gray-700); margin-bottom: 1rem;">Estas reglas deben cumplirse independientemente del lenguaje o estructura que elijas. El evaluador verificará explícitamente cada una de ellas.</p>
+            <ul class="invariant-list">
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span><code>_consultar_inventario()</code> nunca propaga una excepción al ciclo de polling — todos los errores se capturan dentro del método. El ciclo siempre continúa al siguiente ciclo, incluso tras un Timeout o ConnectionError.</span>
+                </li>
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span>Un <code>503</code> incrementa el intervalo (backoff). Un <code>400</code> o <code>401</code> registra el error pero <strong>no reintenta</strong> y no modifica el intervalo — si el header está mal formado, reintentar inmediatamente no tiene sentido.</span>
+                </li>
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span>El sleep del ciclo es <strong>no bloqueante</strong>: <code>await asyncio.sleep(n)</code> en Python, <code>await new Promise(r => setTimeout(r, n))</code> en JS, o equivalente. <code>time.sleep()</code> bloqueante congela el event loop.</span>
+                </li>
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span><code>detener()</code> solo cambia la bandera de control — no cancela la corrutina de forma forzada, no genera <code>CancelledError</code> ni excepciones en el ciclo.</span>
+                </li>
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span><code>_notificar()</code> llama a <code>actualizar(inventario)</code> en <strong>todos los observadores de forma idéntica</strong>, sin condiciones <code>if isinstance(obs, Tipo)</code> ni switch por tipo. Si un observador lanza una excepción interna, el ciclo de notificación a los demás observadores no debe interrumpirse.</span>
+                </li>
+                <li class="invariant-item">
+                    <span class="inv-icon">●</span>
+                    <span>El body de la respuesta se valida antes de usarlo: si <code>productos</code> es <code>null</code> o el JSON no tiene el campo esperado, el cliente registra el problema y no llama a <code>_notificar()</code> con datos inválidos.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ══ ZERO TOLERANCE ══ -->
+    <div class="zero-section">
+        <h3>🚫 Condiciones de Fallo Crítico — Zero Tolerance</h3>
+        <div class="zero-item">
+            <strong>Crash silencioso que detiene el event loop:</strong> El cliente recibe un error de red y lanza una excepción no capturada que termina la corrutina principal. El ciclo muere sin registrar el error. <em style="opacity:0.75;">→ Criterio afectado: Manejo de errores + Programación asíncrona. Calificación máxima en esos rubros: Básico (50%).</em>
+        </div>
+        <div class="zero-item">
+            <strong>Excepción no capturada en <code>actualizar()</code> de un observador que silencia al resto:</strong> Si el ciclo <code>for obs in _observadores</code> no está protegido por try/except, un observador con bug detiene la notificación de los siguientes. <em style="opacity:0.75;">→ Criterio afectado: Patrón Observer. Calificación máxima: Básico (50%).</em>
+        </div>
+        <div class="zero-item">
+            <strong><code>time.sleep()</code> bloqueante en el ciclo de polling:</strong> Congela el event loop durante el intervalo de espera; ninguna otra corrutina puede ejecutarse y el cliente no puede responder a <code>detener()</code>. <em style="opacity:0.75;">→ Criterio afectado: Programación asíncrona. Calificación máxima: Básico (50%).</em>
+        </div>
+        <p style="font-size:0.78rem; color: rgba(255,255,255,0.5); margin-top:0.75rem;">Nota: un cierre controlado (<code>ejecutando = False</code> + salir del while limpiamente) es correcto y no activa estas condiciones. La distinción es <em>fallo silencioso</em> vs. <em>cierre controlado</em>.</p>
+    </div>
+
+    <!-- ══ RÚBRICA ══ -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-icon">📊</span>
+            <h2>Rúbrica Oficial de Evaluación</h2>
+            <span class="section-pts">100 puntos · Vale 12%</span>
+        </div>
+        <div class="section-body">
+            <div class="rubrica-wrapper">
+                <table class="rubrica">
+                    <thead>
+                        <tr>
+                            <th style="width:20%">Criterio</th>
+                            <th style="width:21%"><span class="nivel"><span class="nivel-dot dot-e"></span>Excelente (100%)</span></th>
+                            <th style="width:21%"><span class="nivel"><span class="nivel-dot dot-s"></span>Satisfactorio (75%)</span></th>
+                            <th style="width:21%"><span class="nivel"><span class="nivel-dot dot-b"></span>Básico (50%)</span></th>
+                            <th style="width:17%"><span class="nivel"><span class="nivel-dot dot-i"></span>Insuficiente (&lt;50%)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="criterio-cell">Construcción de peticiones HTTP<small>GET con headers + POST con body JSON · 25%</small></td>
+                            <td>Construye ambas peticiones correctamente. Authorization presente en ambas. Body del POST serializado como JSON con los 4 campos requeridos. Timeout configurado en la petición GET.</td>
+                            <td>Peticiones funcionales pero con algún header faltante en una de ellas, o timeout no configurado en el GET.</td>
+                            <td>Solo implementa el GET básico sin headers custom o sin Content-Type en el POST. El POST funciona pero no incluye todos los campos.</td>
+                            <td>Alguna de las peticiones no se construye correctamente o no funciona al momento de la evaluación.</td>
+                        </tr>
+                        <tr>
+                            <td class="criterio-cell">Manejo diferenciado de errores<small>2xx / 4xx / 5xx / errores de red · 25%</small></td>
+                            <td>Diferencia explícitamente 200 (procesar), 304 (mantener estado), 4xx (no reintentar, registrar error), 5xx (backoff), y errores de red (Timeout/ConnectionError: continuar ciclo).</td>
+                            <td>Diferencia éxito vs. error general, pero no distingue 4xx de 5xx, o no captura explícitamente errores de red (Timeout/ConnectionError).</td>
+                            <td>Solo maneja el caso exitoso (200). Los errores de red o códigos 4xx/5xx hacen crashear o detener el cliente.</td>
+                            <td>No hay manejo de errores. Un solo fallo detiene el programa completo.</td>
+                        </tr>
+                        <tr>
+                            <td class="criterio-cell">Programación asíncrona correcta<small>async/await · sleep no bloqueante · 20%</small></td>
+                            <td>Todas las operaciones de I/O usan <code>async/await</code>. Sleep no bloqueante en el ciclo. El POST en <code>ModuloAlertas</code> también es async. El event loop no se congela en ningún punto.</td>
+                            <td>async/await correcto en el GET pero con <code>time.sleep()</code> bloqueante en el ciclo, o el POST en <code>ModuloAlertas</code> no es asíncrono.</td>
+                            <td>El programa funciona de forma síncrona (aunque lento). Los <code>await</code> están presentes pero incompletos o mal usados.</td>
+                            <td>No usa async/await, o lo usa sin los <code>await</code> necesarios, o usa <code>time.sleep()</code> bloqueante como única forma de espera.</td>
+                        </tr>
+                        <tr>
+                            <td class="criterio-cell">Polling con detección de cambios<small>ETag / estado · backoff · detener() · 15%</small></td>
+                            <td>Ciclo de polling con ETag (<code>If-None-Match</code>) o comparación de estado. Backoff adaptativo: intervalo crece si 304 acumulados o 5xx; se resetea si hay cambio real (200 con datos nuevos). <code>detener()</code> con cierre suave.</td>
+                            <td>Ciclo de polling funcional sin backoff adaptativo, o sin detectar cambios (consulta y notifica siempre, incluso sin cambios en el inventario).</td>
+                            <td>Ciclo de polling básico con intervalo fijo, sin manejo de errores dentro del ciclo y sin <code>detener()</code> funcional.</td>
+                            <td>No implementa polling (hace una sola consulta), o el ciclo no termina, o no usa ningún mecanismo de espera entre consultas.</td>
+                        </tr>
+                        <tr>
+                            <td class="criterio-cell">Patrón Observer — desacoplamiento<small>Observable · suscribir/notificar · 15%</small></td>
+                            <td>Observable notifica a todos los observadores de forma idéntica via <code>actualizar(inventario)</code>. Agregar un tercer observador no requiere modificar <code>MonitorInventario</code>. Ningún observador conoce detalles HTTP del Observable.</td>
+                            <td>Observer funciona pero con acoplamiento leve: hay un <code>if isinstance(obs, Tipo)</code> o una condición por tipo de observador en <code>_notificar()</code>.</td>
+                            <td>Existe algún mecanismo de callback o referencia directa, pero no sigue la interfaz Observer (sin <code>suscribir/desuscribir</code>, o los observadores acceden directamente al Observable).</td>
+                            <td>Sin Observer. <code>MonitorInventario</code> llama directamente a <code>ModuloCompras</code> y <code>ModuloAlertas</code> por nombre dentro de <code>_notificar()</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ REGISTRO DE CALIFICACIÓN ══ -->
+    <div class="scoring-bar">
+        <div class="scoring-header">
+            <span>Registro de Calificación</span>
+            <span style="font-size:0.72rem; opacity:0.8;">Autoevaluación</span>
+        </div>
+        <div class="scoring-grid">
+            <div class="score-cell">
+                <div class="score-label">HTTP Peticiones</div>
+                <div class="score-pct">25%</div>
+                <div class="score-box">25%</div>
+            </div>
+            <div class="score-cell">
+                <div class="score-label">Manejo Errores</div>
+                <div class="score-pct">25%</div>
+                <div class="score-box">20%</div>
+            </div>
+            <div class="score-cell">
+                <div class="score-label">Async/Await</div>
+                <div class="score-pct">20%</div>
+                <div class="score-box">15%</div>
+            </div>
+            <div class="score-cell">
+                <div class="score-label">Polling + Backoff</div>
+                <div class="score-pct">15%</div>
+                <div class="score-box">13%</div>
+            </div>
+            <div class="score-cell">
+                <div class="score-label">Patrón Observer</div>
+                <div class="score-pct">15%</div>
+                <div class="score-box">12%</div>
+            </div>
+            <div class="score-cell total-cell">
+                <div class="score-label">CALIFICACIÓN FINAL</div>
+                <div class="score-pct">/ 100</div>
+                <div class="score-box">85%</div>
+            </div>
+        </div>
+        <div class="firma-row">
+            <div class="firma-field">
+                <div class="firma-line"></div>
+                <div class="firma-label">Firma del Docente</div>
+            </div>
+            <div class="firma-field">
+                <div class="firma-line">13/03/2026 5:42</div>
+                <div class="firma-label">Fecha y hora de entrega</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="exam-footer">
+        <strong>Universidad Autónoma de Nayarit</strong> · Programación Distribuida del Lado del Cliente<br>
+        Examen Práctico 1 — Consumo de APIs · Semana 5 · Semestre 2025-A<br>
+        Modelo Pedagógico AETL v1.0 · Evaluación alineada con ACM/IEEE-CS CS2023<br>
+        <span class="page-num">Dr. Eligardo Cruz Sánchez</span>
+    </div>
+
+</main>
+
+</body>
+</html>
