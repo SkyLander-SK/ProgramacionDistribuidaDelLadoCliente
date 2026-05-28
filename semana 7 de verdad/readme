@@ -1,0 +1,19 @@
+"""
+RECEPTOR ALERTAS ECOMARKET – Decisiones de arquitectura (cliente)
+
+SSE elegido sobre polling porque:
+- Escenario A (Precios): Con 10,000 usuarios concurrentes, un polling cada 2s generaría unas 300,000 peticiones por minuto globales en EcoMarket. El 99.9% de estas consultas resultarían en respuestas vacías (HTTP 304 Not Modified), saturando el hilo de eventos de la aplicación de manera innecesaria. Al implementar SSE, el cliente reduce este overhead manteniendo un único socket de lectura que permanece inactivo ("idle") sin intercambio de tráfico si no hay fluctuación, asegurando una latencia menor a 100ms inmediatamente cuando ocurre un cambio real.
+- Cómo falla el rechazado (Polling): Forzaría al módem de radio del terminal del usuario a operar en un estado continuo de alta potencia para resolver el procesamiento periódico de headers HTTP repetitivos. Esto impacta negativamente en la duración de la batería y degrada la fluidez de renderizado de la UI por el parseo síncrono e inútil de payloads vacíos.
+
+Polling obligatorio sobre SSE/WebSockets porque:
+- Escenario B (Inventario): El servidor legacy del backend carece por completo de endpoints reactivos o de soporte nativo para protocolos basados en streaming (REST clásico). El cliente toma un rol activo ejecutando un bucle de Polling rígido a 1s balanceado con Jitter aleatorio (+/-150ms) para que el navegador rompa la sincronización grupal.
+- Cómo falla el rechazado (SSE/WS o Polling sin control): Intentar establecer conexiones persistentes fallará en la negociación inicial debido a que el servidor legacy no reconoce los protocolos. Adicionalmente, si el backend sufre una ralentización y tarda más de 1.0s en responder, un polling ingenuo generará acumulación de peticiones en paralelo (Request Piling), saturando el pool de conexiones del cliente y congelando el navegador en cuanto las respuestas encoladas impacten juntas.
+
+Polling adaptativo elegido sobre SSE porque:
+- Escenario C (Red inestable): Un entorno con cortes constantes cada 20-30 segundos inutiliza la naturaleza persistente de los canales de streaming. Se configura un mecanismo de Polling con algoritmo de Backoff Exponencial en el cliente para pausar las peticiones y multiplicar gradualmente el delay tras detectar excepciones consecutivas de red (ConnectionError).
+- Cómo falla el rechazado (SSE nativo): La especificación nativa de EventSource activa reintentos inmediatos e infinitos ante una desconexión. En una zona sin cobertura, esto atrapa al dispositivo en un bucle cerrado de handshakes TCP y costosas negociaciones de cifrado TLS/SSL, disparando el uso de CPU, sobrecalentando el terminal y drenando la batería sin transmitir datos reales.
+
+SSE + HTTP POST elegido sobre WebSocket porque:
+- Escenario D (Bidireccional): WebSockets incrementa de forma crítica la complejidad en el lado del cliente al delegar la gestión manual del ciclo de vida del canal duplex, flujos de reconexión asíncronos y soporte de Sticky Sessions en balanceadores de carga. La arquitectura híbrida mantiene un hilo de escucha pasivo y ligero con SSE para alertas entrantes, enviando los filtros dinámicos mediante peticiones POST individuales sobre la misma sesión multiplexada en HTTP/2.
+- Cómo falla el rechazado (WebSockets): Los firewalls corporativos y proxies de redes Wi-Fi públicas cortan agresivamente conexiones duplex que no utilicen el estándar HTTP plano por sospecha de inactividad. El cliente experimentará excepciones silenciosas (WebSocket close code 1006 o 'Connection timed out'), congelando el panel interactivo por completo y obligando al usuario a realizar una recarga manual (F5) para recuperar el servicio.
+"""
